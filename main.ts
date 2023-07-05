@@ -1,4 +1,4 @@
-enum Button {
+enum EMF_Button {
     //% block="L"
     L_BUTTON = 2,
     //% block="R" 
@@ -158,11 +158,11 @@ namespace EMF_Gamepad {
    /**
     * Dual Stick Controller
     */
-   //% blockId=Button_status block="Button_status %button button %status status" group="Dual Stick Controller"
+   //% blockId=Button_status block="button state: button %button status %status" group="Dual Stick Controller"
    //% weight=74
    //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
-   export function Button_status(button: Button , status: Button_State): boolean{
+   export function Button_status(button: EMF_Button , status: Button_State): boolean{
        if(Get_Button_Status(button) == status){
            return true;
        }
@@ -173,7 +173,7 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Gamepad_shock block="Gamepad_shock Start of %shock vibration "  group="Dual Stick Controller"
+   //% blockId=Gamepad_shock block="gamepad shock: vibration %shock"  group="Dual Stick Controller"
    //% shock.min=0 shock.max=255
    //% weight=75
    //% subcategory="Dual Stick Controller"
@@ -192,7 +192,7 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Stick_position block="Stick_position value %stick stick %axial axis" group="Dual Stick Controller"
+   //% blockId=Stick_position block="stick position: stick %stick axis %axial" group="Dual Stick Controller"
    //% weight=76
    //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline

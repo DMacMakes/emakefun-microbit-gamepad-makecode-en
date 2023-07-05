@@ -1,10 +1,10 @@
 {
     "EMF_Gamepad|block": "EMakeFun Microbit Gamepad",
     "EMF_Gamepad.Gamepad_Press|block": "游戏手柄按键 %button 是否被按下？",
-    "Button.L_BUTTON|block": "L",
-    "Button.R_BUTTON|block": "R",
-    "Button.JOYSTICK_BUTTON_LEFT|block": "左摇杆按键",
-    "Button.JOYSTICK_BUTTON_RIGHT|block": "右摇杆按键",
+    "EMF_Button.L_BUTTON|block": "L",
+    "EMF_Button.R_BUTTON|block": "R",
+    "EMF_Button.JOYSTICK_BUTTON_LEFT|block": "左摇杆按键",
+    "EMF_Button.JOYSTICK_BUTTON_RIGHT|block": "右摇杆按键",
     "EMF_Gamepad.Gamepad_shock|block": "游戏手柄震动电机速度 %shock ",
     "EMF_Gamepad.actuator_buzzer1|block": "游戏手柄板载蜂鸣器振动频率(HZ) %shock ",
     
