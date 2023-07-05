@@ -1,6 +1,6 @@
 {
     "name": "EMF_Gamepad",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "EMakefun Microbit Handler (Gamepad)",
     "license": "MIT",
     "dependencies": {

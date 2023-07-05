@@ -39,7 +39,7 @@ enum Stick_Id{
 }
 
 
-//% color="#FFA500" weight=10 icon="\uf2c9" block="Joystick:bit"
+//% color="#FFA500" weight=10 icon="\u1F3AE" block="EMF_Gamepad"
 namespace EMF_Gamepad {
     
     let i2cAddr: number
@@ -159,7 +159,6 @@ namespace EMF_Gamepad {
     */
    //% blockId=Button_status block="Button_status %button button %status status" group="Dual Stick Controller"
    //% weight=74
-   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
    export function Button_status(button: Button , status: Button_State): boolean{
        if(Get_Button_Status(button) == status){
@@ -175,7 +174,6 @@ namespace EMF_Gamepad {
    //% blockId=Gamepad_shock block="Gamepad_shock Start of %shock vibration "  group="Dual Stick Controller"
    //% shock.min=0 shock.max=255
    //% weight=75
-   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
     export function Gamepad_shock( shock: number): void {
         let a = AnalogPin.P1;
@@ -193,7 +191,6 @@ namespace EMF_Gamepad {
     */
    //% blockId=Stick_position block="Stick_position value %stick stick %axial axis" group="Dual Stick Controller"
    //% weight=76
-   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
    export function Stick_position(stick: Stick_Id , axis: Stick_Axis){
        let val = 0;
