@@ -40,7 +40,7 @@ enum Stick_Id{
 
 
 //% color="#FFA500" weight=10 icon="\uf2c9" block="Joystick:bit"
-namespace joystick {
+namespace EMF_Gamepad {
     
     let i2cAddr: number
     let BK: number

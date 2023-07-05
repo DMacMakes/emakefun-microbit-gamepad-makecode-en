@@ -1,12 +1,12 @@
 {
-    "joystick|block": "Joystick:bit",
-    "joystick.Gamepad_Press|block": "游戏手柄按键 %button 是否被按下？",
+    "EMF_Gamepad|block": "EMakeFun Microbit Gamepad",
+    "EMF_Gamepad.Gamepad_Press|block": "游戏手柄按键 %button 是否被按下？",
     "Button.L_BUTTON|block": "L",
     "Button.R_BUTTON|block": "R",
     "Button.JOYSTICK_BUTTON_LEFT|block": "左摇杆按键",
     "Button.JOYSTICK_BUTTON_RIGHT|block": "右摇杆按键",
-    "joystick.Gamepad_shock|block": "游戏手柄震动电机速度 %shock ",
-    "joystick.actuator_buzzer1|block": "游戏手柄板载蜂鸣器振动频率(HZ) %shock ",
+    "EMF_Gamepad.Gamepad_shock|block": "游戏手柄震动电机速度 %shock ",
+    "EMF_Gamepad.actuator_buzzer1|block": "游戏手柄板载蜂鸣器振动频率(HZ) %shock ",
     
     
     "Button_State.JOYSTICK_PRESS_DOWN|block": "按下",
@@ -17,8 +17,8 @@
     "Button_State.NONE_PRESS|block": "未按",
     "Stick_Axis.STICK_X|block": "X轴",
     "Stick_Axis.STICK_Y|block": "Y轴",
-    "joystick.Button_status|block": "当按钮 %button 被 %status 时",
-    "joystick.Stick_position|block": "游戏手柄摇杆获取 %stick %axis 的值",
+    "EMF_Gamepad.Button_status|block": "当按钮 %button 被 %status 时",
+    "EMF_Gamepad.Stick_position|block": "游戏手柄摇杆获取 %stick %axis 的值",
     "Stick_Id.STICK_LEFT|block": "左侧",
     "Stick_Id.STICK_RIGHT|block": "右侧"
 }

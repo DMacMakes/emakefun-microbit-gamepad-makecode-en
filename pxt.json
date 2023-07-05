@@ -1,7 +1,7 @@
 {
-    "name": "joystick",
+    "name": "EMF_Gamepad",
     "version": "1.0.0",
-    "description": "Joystick:bit",
+    "description": "EMakefun Microbit Handler (Gamepad)",
     "license": "MIT",
     "dependencies": {
         "core": "*"
