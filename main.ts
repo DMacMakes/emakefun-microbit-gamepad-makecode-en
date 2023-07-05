@@ -40,7 +40,6 @@ enum Stick_Id{
 
 
 //% color="#FFA500" weight=10 icon="\uF11B" block="EMF Gamepad"
-//% groups=['Controls']
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
     
@@ -159,9 +158,8 @@ namespace EMF_Gamepad {
    /**
     * Dual Stick Controller
     */
-   //% blockId=Button_status block="button %button status is %status" group="Dual Stick Controller"
+   //% blockId=Button_status block="button %button status is %status"
    //% weight=74
-   //% subcategory="Controls"
    //% inlineInputMode=inline
    export function Button_status(button: EMF_Button , status: Button_State): boolean{
        if(Get_Button_Status(button) == status){
@@ -174,10 +172,9 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Vibrate block="vibrate: intensity %intensity"  group="Dual Stick Controller"
+   //% blockId=Vibrate block="vibrate: intensity %intensity" 
    //% intensity.min=0 intensity.max=255
    //% weight=75
-   //% subcategory="Controls"
    //% inlineInputMode=inline
     export function Vibrate ( intensity: number): void {
         let a = AnalogPin.P1;
@@ -193,9 +190,8 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Stick_position block="Position of %stick stick in %axis axis" group="Dual Stick Controller"
+   //% blockId=Stick_position block="Position of %stick stick in %axis axis"
    //% weight=76
-   //% subcategory="Controls"
    //% inlineInputMode=inline
    export function Stick_position(stick: Stick_Id , axis: Stick_Axis){
        let val = 0;
