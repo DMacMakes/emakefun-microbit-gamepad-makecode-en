@@ -1,22 +1,22 @@
-enum barb_fitting {
-    //% block="LEFT"
-    JOYSTICK_BUTOON_LEFT_L = 2,
-    //% block="RIGHT" 
-    JOYSTICK_BUTOON_RIGHT_R = 1,
+enum Button {
+    //% block="L"
+    L_BUTTON = 2,
+    //% block="R" 
+    R_BUTTON = 1,
     //% block="JOYSTICK BUTTON LEFT"
     JOYSTICK_BUTTON_LEFT = 4,
     //% block="JOYSTICK BUTTON RIGHT" 
     JOYSTICK_BUTTON_RIGHT = 3,
 }
 
-enum key_status {
+enum Button_State {
     //% block="DOWN"
     JOYSTICK_PRESS_DOWN = 0,   //按下
     //% block="UP"
     JOYSTICK_PRESS_UP = 1,    //释放
-    //% block="CLICK1"
+    //% block="CLICK"
     SINGLE_CLICK = 3,     //单击
-    //% block="CLICK2"
+    //% block="DOUBLE_CLICK"
     DOUBLE_CLICK = 4,    //双击
     //% block="HOLD"
     LONG_PRESS_HOLD = 6,    //长按
@@ -24,18 +24,18 @@ enum key_status {
     NONE_PRESS = 8,      //未按
 }
 
-enum Shaft{
+enum Stick_Axis{
     //% block="X"
-    JOYSTICK_X_Shaft = 0,
+    STICK_X = 0,
     //% block="Y"
-    JOYSTICK_Y_Shaft = 1,
+    STICK_Y = 1,
 }
 
-enum Wiggly{
+enum Stick_Id{
     //% block="LEFT"
-    JOYSTICK_left_wi = 0,
+    STICK_LEFT = 0,
     //% block="RIGHT"
-    JOYSTICK_right_wi = 1,
+    STICK_RIGHT = 1,
 }
 
 
@@ -133,8 +133,8 @@ namespace joystick {
     let JOYSTICK_RIGHT_Y_REG = 0x13;
 
 
-    let BUTOON_LEFT_REG = 0x22;
-    let BUTOON_RIGHT_REG = 0x23;
+    let L_BUTTON_REG = 0x22;
+    let R_BUTTON_REG = 0x23;
     let JOYSTICK_BUTTON_RIGHT = 0x21;
     let JOYSTICK_BUTTON_LEFT = 0x20;
     let NONE_PRESS = 8;
@@ -142,9 +142,9 @@ namespace joystick {
     function Get_Button_Status (button : number){
         switch(button) {
             case 1: 
-                return i2cread(JOYSTICK_I2C_ADDR,BUTOON_RIGHT_REG);
+                return i2cread(JOYSTICK_I2C_ADDR,R_BUTTON_REG);
             case 2: 
-                return i2cread(JOYSTICK_I2C_ADDR, BUTOON_LEFT_REG);
+                return i2cread(JOYSTICK_I2C_ADDR, L_BUTTON_REG);
             case 3: 
                 return i2cread(JOYSTICK_I2C_ADDR,JOYSTICK_BUTTON_RIGHT);
 			case 4: 
@@ -155,13 +155,13 @@ namespace joystick {
     }
 
    /**
-    * 双摇杆手柄
+    * Dual Stick Controller
     */
-   //% blockId=Gamepad_Status block="Gamepad_Status %button whether %status state" group="双摇杆手柄"
+   //% blockId=Button_status block="Button_status %button button %status status" group="Dual Stick Controller"
    //% weight=74
-   //% subcategory="双摇杆手柄"
+   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
-   export function Gamepad_Status(button: barb_fitting , status: key_status): boolean{
+   export function Button_status(button: Button , status: Button_State): boolean{
        if(Get_Button_Status(button) == status){
            return true;
        }
@@ -170,12 +170,12 @@ namespace joystick {
 
 
     /**
-    * 双摇杆手柄
+    * Dual Stick Controller
     */
-   //% blockId=Gamepad_shock block="Gamepad_shock Start of %shock vibration "  group="双摇杆手柄"
+   //% blockId=Gamepad_shock block="Gamepad_shock Start of %shock vibration "  group="Dual Stick Controller"
    //% shock.min=0 shock.max=255
    //% weight=75
-   //% subcategory="双摇杆手柄"
+   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
     export function Gamepad_shock( shock: number): void {
         let a = AnalogPin.P1;
@@ -189,22 +189,22 @@ namespace joystick {
     }
 
     /**
-    * 双摇杆手柄
+    * Dual Stick Controller
     */
-   //% blockId=Gamepad_Wiggly block="Gamepad_Wiggly gain %rock rocker %axial price" group="双摇杆手柄"
+   //% blockId=Stick_position block="Stick_position value %stick stick %axial axis" group="Dual Stick Controller"
    //% weight=76
-   //% subcategory="双摇杆手柄"
+   //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
-   export function Gamepad_Wiggly(rock: Wiggly , axial: Shaft){
+   export function Stick_position(stick: Stick_Id , axis: Stick_Axis){
        let val = 0;
-       if(rock == 0){
-           if(axial == 0){
+       if(stick == 0){
+           if(axis == 0){
                val = i2cread(JOYSTICK_I2C_ADDR,JOYSTICK_LEFT_X_REG);
            }else{
                val = i2cread(JOYSTICK_I2C_ADDR,JOYSTICK_LEFT_Y_REG);
            }
        }else{
-           if(axial == 0){
+           if(axis == 0){
                val = i2cread(JOYSTICK_I2C_ADDR,JOYSTICK_RIGHT_X_REG);
            }else{
                val = i2cread(JOYSTICK_I2C_ADDR,JOYSTICK_RIGHT_Y_REG);
