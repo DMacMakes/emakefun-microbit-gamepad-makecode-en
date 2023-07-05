@@ -1,5 +1,5 @@
 {
-    "EMF_Gamepad|block": "EMakeFun Microbit Gamepad",
+    "EMF Gamepad|block": "EMakeFun Microbit Gamepad",
     "EMF_Gamepad.Gamepad_Press|block": "游戏手柄按键 %button 是否被按下？",
     "EMF_Button.L_BUTTON|block": "L",
     "EMF_Button.R_BUTTON|block": "R",
