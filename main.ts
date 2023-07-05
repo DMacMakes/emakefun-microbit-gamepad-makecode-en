@@ -172,7 +172,7 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Vibrate block="vibrate: intensity %intensity" 
+   //% blockId=Vibrate block="vibrate at intensity %intensity" 
    //% intensity.min=0 intensity.max=255
    //% weight=75
    //% inlineInputMode=inline
