@@ -39,7 +39,7 @@ enum Stick_Id{
 }
 
 
-//% color="#FFA500" weight=10 icon="\u1F3AE" block="EMF Gamepad"
+//% color="#FFA500" weight=10 icon="\uF11B" block="EMF Gamepad"
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
     
