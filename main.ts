@@ -84,10 +84,10 @@ namespace EMF_Gamepad {
         //let arr = value1.split('')
         buf[0] = reg 
         buf[1] = value
-        let betys = []
-        betys = stringToBytes(value1)
-        for (let i = 0; i < betys.length; i++) {
-            buf[2+i] = betys[i]
+        let bytes_value = []
+        bytes_value = stringToBytes(value1)
+        for (let i = 0; i < bytes_value.length; i++) {
+            buf[2+i] = bytes_value[i]
         }
         pins.i2cWriteBuffer(addr, buf)
     }
@@ -158,7 +158,7 @@ namespace EMF_Gamepad {
    /**
     * Dual Stick Controller
     */
-   //% blockId=Button_status block="button state: button %button status %status" group="Dual Stick Controller"
+   //% blockId=Button_status block="button %button status is %status" group="Dual Stick Controller"
    //% weight=74
    //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
@@ -173,15 +173,15 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Gamepad_shock block="gamepad shock: vibration %shock"  group="Dual Stick Controller"
-   //% shock.min=0 shock.max=255
+   //% blockId=Vibrate block="vibrate: intensity %intensity"  group="Dual Stick Controller"
+   //% intensity.min=0 intensity.max=255
    //% weight=75
    //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
-    export function Gamepad_shock( shock: number): void {
+    export function Vibrate ( intensity: number): void {
         let a = AnalogPin.P1;
         pins.analogWritePin( a , pins.map(
-			shock,
+			intensity,
 			0,
 			255,
 			0,
@@ -192,7 +192,7 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Stick_position block="stick position: stick %stick axis %axial" group="Dual Stick Controller"
+   //% blockId=Stick_position block="Position of %stick stick in %axis axis" group="Dual Stick Controller"
    //% weight=76
    //% subcategory="Dual Stick Controller"
    //% inlineInputMode=inline
