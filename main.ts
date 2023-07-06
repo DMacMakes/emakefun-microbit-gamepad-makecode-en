@@ -169,13 +169,14 @@ namespace EMF_Gamepad {
     }
 
     //% draggableParameters="reporter"
-    //% blockId=OnGamedpadButtonPressed block="on gamepad button $button" pressed
+    //% blockId=OnGamedpadButtonPressed block="on gamepad button $button pressed"
     //% weight=80
     //% inlineInputMode=inline
 
-    export function onGamepadButtonPress(button:EMF_Button, handler: (button: EMF_Button) => void): void {
-      
+    export function onGamepadButtonPress(button:EMF_Button, handler: () => void): void {
+
       // button was pressed
+      handler()
     }
 
     /**
