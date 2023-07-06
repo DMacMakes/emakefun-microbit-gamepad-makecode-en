@@ -168,6 +168,15 @@ namespace EMF_Gamepad {
        return false;
     }
 
+    //% draggableParameters="reporter"
+    //% blockId=OnGamedpadButtonPressed block="on gamepad button $button" pressed
+    //% weight=80
+    //% inlineInputMode=inline
+
+    export function onGamepadButtonPress(button:EMF_Button): void {
+
+      // button was pressed
+    }
 
     /**
     * Dual Stick Controller
