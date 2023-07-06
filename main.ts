@@ -168,10 +168,11 @@ namespace EMF_Gamepad {
        return false;
     }
 
-    //% draggableParameters="reporter"
-    //% blockId=OnGamedpadButtonPressed block="on gamepad button $button pressed"
-    //% weight=80
-    //% inlineInputMode=inline
+    /*
+    // draggableParameters="reporter"
+    // blockId=OnGamedpadButtonPressed block="on gamepad button $button pressed"
+    // weight=80
+    // inlineInputMode=inline
     export function onGamepadButtonPress(button:EMF_Button, handler: () => void): void {
 
       // button was pressed
@@ -180,6 +181,7 @@ namespace EMF_Gamepad {
         handler()
       }
     }
+    */
 
     /**
     * Dual Stick Controller
@@ -202,8 +204,19 @@ namespace EMF_Gamepad {
     /**
     * Dual Stick Controller
     */
-   //% blockId=Stick_position block="Position of %stick stick in %axis axis"
+   //% blockId=Stop_vibrating block="stop vibrating" 
    //% weight=76
+   //% inlineInputMode=inline
+   export function Stop_vibrating (): void {
+    let a = AnalogPin.P1;
+    pins.analogWritePin( a , 0)
+}
+
+    /**
+    * Dual Stick Controller
+    */
+   //% blockId=Stick_position block="Position of %stick stick in %axis axis"
+   //% weight=77
    //% inlineInputMode=inline
    export function Stick_position(stick: Stick_Id , axis: Stick_Axis){
        let val = 0;
@@ -222,7 +235,8 @@ namespace EMF_Gamepad {
        }
        return val;
    }
-   
+
+   /*
    function Bodge_handler()
    {
    }
@@ -235,6 +249,7 @@ namespace EMF_Gamepad {
     }
     
   })
+  */
    
 }
 
