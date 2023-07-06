@@ -173,8 +173,8 @@ namespace EMF_Gamepad {
     //% weight=80
     //% inlineInputMode=inline
 
-    export function onGamepadButtonPress(button:EMF_Button): void {
-
+    export function onGamepadButtonPress(button:EMF_Button, handler: (button: EMF_Button) => void): void {
+      
       // button was pressed
     }
 
