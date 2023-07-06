@@ -172,11 +172,13 @@ namespace EMF_Gamepad {
     //% blockId=OnGamedpadButtonPressed block="on gamepad button $button pressed"
     //% weight=80
     //% inlineInputMode=inline
-
     export function onGamepadButtonPress(button:EMF_Button, handler: () => void): void {
 
       // button was pressed
-      handler()
+      if(handler) 
+      {
+        handler()
+      }
     }
 
     /**
@@ -220,5 +222,19 @@ namespace EMF_Gamepad {
        }
        return val;
    }
+   
+   function Bodge_handler()
+   {
+   }
+    
+    basic.forever(function () {
+    if(Get_Button_Status(L_BUTTON_REG) == 1)
+    {
+      onGamepadButtonPress(EMF_Button.L_BUTTON, Bodge_handler);
+      //onGamepadButtonPress(EMF_Button.L_BUTTON, null);
+    }
+    
+  })
+   
 }
 
