@@ -4,13 +4,21 @@
     "description": "EMakefun Microbit Handler (Gamepad)",
     "license": "MIT",
     "dependencies": {
-        "core": "*"
+        "core": "*",
+        "microphone": "*"
     },
     "files": [
         "README.md",
         "main.ts",
-		"_locales/zh/joystick-strings.json"
-		
+        "_locales/zh/joystick-strings.json"
     ],
-    "public": true
+    "public": true,
+    "targetVersions": {
+        "target": "6.0.15",
+        "targetId": "microbit"
+    },
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj"
 }

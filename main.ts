@@ -24,6 +24,15 @@ enum Button_State {
     NONE_PRESS = 8,      //未按
 }
 
+/**
+ * Trigger Events Proposed by DFRobot gamer:bit Players.
+ */
+//%
+enum Stick_Event {
+    //% block="changed direction"
+    CHANGED_DIR = 45,
+}
+
 enum Stick_Axis{
     //% block="X"
     STICK_X = 0,
@@ -38,11 +47,23 @@ enum Stick_Id{
     STICK_RIGHT = 1,
 }
 
+// Numeric annotation for 9 stick positions
+// https://wiki.supercombo.gg/w/Help:Notation
+// 7 8 9  (up left, up, up right)
+// 4 5 6  (left, neutral, right)
+// 1 2 3
+enum Stick_Direction{
+    UP_LEFT=7, UP=8, UP_RIGHT=9,
+    LEFT=4, NEUTRAL=5, RIGHT=6,
+    DOWN_LEFT=1, DOWN=2, DOWN_RIGHT=3     
+}
+
 
 //% color="#FFA500" weight=10 icon="\uF11B" block="EMF Gamepad"
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
-    
+    let direction:Stick_Direction = Stick_Direction.NEUTRAL;
+
     let i2cAddr: number
     let BK: number
     let RS: number
@@ -235,6 +256,33 @@ namespace EMF_Gamepad {
        }
        return val;
    }
+
+   // TODO: Add a stick_direction function that returns a Stick_Direction
+
+
+    /**
+     * Registers code to run when a DFRobot gamer:bit event is detected.
+     */
+    //% weight=80
+    //% blockGap=50
+    //% blockId=stick_onEvent block="on |%stick stick |%event"
+    //% button.fieldEditor="gridpicker" stick.fieldOptions.columns=2
+    //% event.fieldEditor="gridpicker" event.fieldOptions.columns=1
+    export function onEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
+        control.onEvent(<number>stick, <number>event, handler); // register handler
+    }
+
+    //basic.forever(function(){
+    control.inBackground(function(){
+        while(true)
+        {
+            // Check if stick has moved
+            control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+            direction = Stick_Direction.UP;
+            // if it has, check if it counts as a change of direction (just up or down, left or right, centered) 
+            pause(2000);
+        }
+    })
 
    /*
    function Bodge_handler()
