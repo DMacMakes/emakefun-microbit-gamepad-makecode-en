@@ -62,7 +62,19 @@ enum Stick_Direction{
 //% color="#FFA500" weight=10 icon="\uF11B" block="EMF Gamepad"
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
-    let direction:Stick_Direction = Stick_Direction.NEUTRAL;
+    const STICK_HOME = 128;
+    let stick_x_last = STICK_HOME;
+    let stick_y_last = STICK_HOME;
+    let stick_dir_x = Stick_Direction.NEUTRAL;
+    let stick_dir_y = Stick_Direction.NEUTRAL;
+    let stick_dir_x_prev = Stick_Direction.NEUTRAL;
+    let stick_dir_y_prev = Stick_Direction.NEUTRAL;
+    //% block="left stick direction"
+    //% blockId=Left_stick_direction block="left stick direction"
+   //% weight=78
+   //% inlineInputMode=inline
+    let left_stick_direction:Stick_Direction = Stick_Direction.NEUTRAL;
+    let Stick_poll_interval = 10; //10ms aka 100 polls per second
 
     let i2cAddr: number
     let BK: number
@@ -274,53 +286,37 @@ namespace EMF_Gamepad {
 
     //basic.forever(function(){
     control.inBackground(function(){
-        let STICK_HOME = 128;
-        let stickx_prev = STICK_HOME;
-        let sticky_prev = STICK_HOME;
-        let stickx_dir = Stick_Direction.NEUTRAL;
-        let stick_dir = Stick_Direction.NEUTRAL;
         while(true)
         {
-            // if stick x changed from stickx_prev 
-            let stickx = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
+            stick_dir_x = Stick_Direction.NEUTRAL;
+            let stick_dir = Stick_Direction.NEUTRAL;
+            let stick_x = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
 
-            if(stickx != stickx_prev){
-                if (stickx < STICK_HOME - STICK_DEADZONE_HALF)
+            // if real stick x value changed from stick x last value 
+            if(stick_x != stick_x_last){
+                // Figure out if current x is left or neutral or right
+                // with neutral being in the dead zone 
+                if (stick_x < STICK_HOME - STICK_DEADZONE_HALF)
                 {
-                    stickx_dir = Stick_Direction.LEFT;
-                } else if(stickx > STICK_HOME+STICK_DEADZONE_HALF)
+                    stick_dir_x = Stick_Direction.LEFT;
+                } else if(stick_x > STICK_HOME + STICK_DEADZONE_HALF)
                 {
-                    stickx_dir = Stick_Direction.RIGHT;
+                    stick_dir_x = Stick_Direction.RIGHT;
                 }
-                    // left stick changed
             }
-            // or sticky changed from stickx_prev
-            // current x is left or neutral or right
-            // current y is up or neutral or down 
-            // stick pos then is up, up right or others
+            // New direction for stick (in x)
+            if(stick_dir_x != stick_dir_x_prev)
+            {
+                // Aaayye it's time to let the world know
+                serial.writeLine("New stick_dir_x: " + stick_dir_x)
+                left_stick_direction = stick_dir_x;
+                control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+                stick_dir_x_prev = stick_dir_x; // remember the direction
+            }
 
-            // Check if stick has moved
-            control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
-            direction = Stick_Direction.UP;
-            // if it has, check if it counts as a change of direction (just up or down, left or right, centered) 
-            pause(2000);
+            pause(Stick_poll_interval);
         }
     })
-
-   /*
-   function Bodge_handler()
-   {
-   }
-    
-    basic.forever(function () {
-    if(Get_Button_Status(L_BUTTON_REG) == 1)
-    {
-      onGamepadButtonPress(EMF_Button.L_BUTTON, Bodge_handler);
-      //onGamepadButtonPress(EMF_Button.L_BUTTON, null);
-    }
-    
-  })
-  */
    
 }
 
