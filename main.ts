@@ -63,17 +63,15 @@ enum Stick_Direction{
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
     const STICK_HOME = 128;
+    let STICK_DEADZONE_HALF = 30;
+
     let stick_x_last = STICK_HOME;
     let stick_y_last = STICK_HOME;
     let stick_dir_x = Stick_Direction.NEUTRAL;
     let stick_dir_y = Stick_Direction.NEUTRAL;
-    let stick_dir_x_prev = Stick_Direction.NEUTRAL;
-    let stick_dir_y_prev = Stick_Direction.NEUTRAL;
-    //% block="left stick direction"
-    //% blockId=Left_stick_direction block="left stick direction"
-   //% weight=78
-   //% inlineInputMode=inline
-    let left_stick_direction:Stick_Direction = Stick_Direction.NEUTRAL;
+    let stick_dir_x_last = Stick_Direction.NEUTRAL;
+    let stick_dir_y_last = Stick_Direction.NEUTRAL;
+    export let left_stick_direction:Stick_Direction = Stick_Direction.NEUTRAL;
     let Stick_poll_interval = 10; //10ms aka 100 polls per second
 
     let i2cAddr: number
@@ -165,14 +163,13 @@ namespace EMF_Gamepad {
     let JOYSTICK_LEFT_Y_REG = 0x11;
     let JOYSTICK_RIGHT_X_REG = 0x12;
     let JOYSTICK_RIGHT_Y_REG = 0x13;
-
+  
 
     let L_BUTTON_REG = 0x22;
     let R_BUTTON_REG = 0x23;
     let JOYSTICK_BUTTON_RIGHT = 0x21;
     let JOYSTICK_BUTTON_LEFT = 0x20;
     let NONE_PRESS = 8;
-    let STICK_DEADZONE_HALF=10;
     function Get_Button_Status (button : number){
         switch(button) {
             case 1: 
@@ -251,7 +248,7 @@ namespace EMF_Gamepad {
    //% blockId=Stick_position block="Position of %stick stick in %axis axis"
    //% weight=77
    //% inlineInputMode=inline
-   export function Stick_position(stick: Stick_Id , axis: Stick_Axis){
+   export function Stick_position(stick: Stick_Id , axis: Stick_Axis): Number{
        let val = 0;
        if(stick == 0){
            if(axis == 0){
@@ -269,6 +266,14 @@ namespace EMF_Gamepad {
        return val;
    }
 
+    //% blockId=Left_stick_direction block="left stick direction"
+    //% weight=80
+    //% inlineInputMode=inline
+    export function Get_left_stick_direction()
+    {
+        return (left_stick_direction);
+    }
+
    // TODO: Add a stick_direction function that returns a Stick_Direction
 
 
@@ -283,37 +288,145 @@ namespace EMF_Gamepad {
     export function onEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
         control.onEvent(<number>stick, <number>event, handler); // register handler
     }
+    
+    function check_stick_dir_x(): Stick_Direction
+    {
+        stick_dir_x = Stick_Direction.NEUTRAL;
+        let stick_dir = Stick_Direction.NEUTRAL;
+        let stick_x = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
 
-    //basic.forever(function(){
-    control.inBackground(function(){
-        while(true)
+        // if real stick x value changed from stick x last value 
+        if (stick_x != stick_x_last) {
+            // Figure out if current x is left or neutral or right
+            // with neutral being in the dead zone 
+            if (stick_x < STICK_HOME - STICK_DEADZONE_HALF) {
+                stick_dir_x = Stick_Direction.LEFT;
+            } else if (stick_x > STICK_HOME + STICK_DEADZONE_HALF) {
+                stick_dir_x = Stick_Direction.RIGHT;
+            }
+        }
+        return(stick_dir_x);
+    }
+
+    function check_stick_dir_y(): Stick_Direction{
+        stick_dir_y = Stick_Direction.NEUTRAL;
+        //let stick_dir = Stick_Direction.NEUTRAL;
+        let stick_y = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y);
+
+        // if real stick x value changed from stick x last value 
+        if (stick_y != stick_y_last) {
+            // Figure out if current x is left or neutral or right
+            // with neutral being in the dead zone 
+            if (stick_y < STICK_HOME - STICK_DEADZONE_HALF) {
+                stick_dir_y = Stick_Direction.DOWN;
+            } else if (stick_y > STICK_HOME + STICK_DEADZONE_HALF) {
+                stick_dir_y = Stick_Direction.UP;
+            }
+        }
+        return (stick_dir_y);
+    }
+
+    function combine_stick_dirs(stick_dir_x: Stick_Direction, stick_dir_y:Stick_Direction): Stick_Direction
+    {
+        let stick_dir = Stick_Direction.NEUTRAL;
+        if(stick_dir_x == Stick_Direction.NEUTRAL)
         {
-            stick_dir_x = Stick_Direction.NEUTRAL;
-            let stick_dir = Stick_Direction.NEUTRAL;
-            let stick_x = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
-
-            // if real stick x value changed from stick x last value 
-            if(stick_x != stick_x_last){
-                // Figure out if current x is left or neutral or right
-                // with neutral being in the dead zone 
-                if (stick_x < STICK_HOME - STICK_DEADZONE_HALF)
+            return(stick_dir_y);
+        } else if (stick_dir_y == Stick_Direction.NEUTRAL)
+        {
+            return(stick_dir_x);
+        } else 
+        {
+            // It has to be a combo direction..
+            // if x is left it has to be left up or left down
+            if(stick_dir_x == Stick_Direction.LEFT)
+            {
+                if (stick_dir_y == Stick_Direction.UP)
                 {
-                    stick_dir_x = Stick_Direction.LEFT;
-                } else if(stick_x > STICK_HOME + STICK_DEADZONE_HALF)
+                    return(Stick_Direction.UP_LEFT);
+                } else
                 {
-                    stick_dir_x = Stick_Direction.RIGHT;
+                    return(Stick_Direction.DOWN_LEFT);
+                }
+            } else
+            {  // must be right
+                if (stick_dir_y == Stick_Direction.UP) {
+                    return (Stick_Direction.UP_RIGHT);
+                } else {
+                    return (Stick_Direction.DOWN_RIGHT);
                 }
             }
-            // New direction for stick (in x)
-            if(stick_dir_x != stick_dir_x_prev)
-            {
-                // Aaayye it's time to let the world know
-                serial.writeLine("New stick_dir_x: " + stick_dir_x)
-                left_stick_direction = stick_dir_x;
-                control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
-                stick_dir_x_prev = stick_dir_x; // remember the direction
-            }
+        }
+        return(stick_dir);
+    }
 
+    function clearLeds():void
+    {
+        //let i = 0;
+        //let j = 0;
+        for(let i=0; i<=4; i++)
+        {
+            for(let j=0; j<=4; j++)
+            {
+                led.unplot(i,j);
+            }
+        }
+    }
+
+    function showDirectionOnLeds(direction :Stick_Direction):void {
+        // clear leds
+        /* basic.showLeds(`
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        `); */
+        clearLeds();
+        let x = 2;
+        let y = 2;
+        // top row
+        if (direction > 6) y = 0;
+        // bottom row
+        if (direction < 4 ) y = 4;
+        // Left column
+        if (direction == 7 || direction == 4 || direction == 1) x = 0;
+        // Right column
+        if (direction == 3 || direction == 6 || direction == 9) x = 4;
+        led.plotBrightness(x, y, 255);
+    }
+
+    //basic.forever(function(){
+    control.inBackground(function(): void{
+        showDirectionOnLeds(left_stick_direction);
+        while(true)
+        {
+            let dir_changed = false;
+            stick_dir_x = check_stick_dir_x();
+            stick_dir_y = check_stick_dir_y();
+            // New direction for stick (in x)
+            if(stick_dir_x != stick_dir_x_last)
+            {
+                //serial.writeLine("New stick_dir_x: " + stick_dir_x)
+                //left_stick_direction = stick_dir_x;
+                dir_changed = true;
+                stick_dir_x_last = stick_dir_x;
+            }
+            if (stick_dir_y != stick_dir_y_last) {
+                // Aaayye it's time to let the world know
+                //serial.writeLine("New stick_dir_x: " + stick_dir_x)
+                dir_changed = true;
+                stick_dir_y_last = stick_dir_y;
+                //left_stick_direction = stick_dir_y;
+            //    control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+            }
+            //left_stick_direction = "combine stick dirs"
+            if(dir_changed)
+            {
+                left_stick_direction = combine_stick_dirs(stick_dir_x, stick_dir_y);
+                showDirectionOnLeds(left_stick_direction);
+                control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+            }
             pause(Stick_poll_interval);
         }
     })
