@@ -160,7 +160,7 @@ namespace EMF_Gamepad {
     let JOYSTICK_BUTTON_RIGHT = 0x21;
     let JOYSTICK_BUTTON_LEFT = 0x20;
     let NONE_PRESS = 8;
-
+    let STICK_DEADZONE_HALF=10;
     function Get_Button_Status (button : number){
         switch(button) {
             case 1: 
@@ -274,8 +274,31 @@ namespace EMF_Gamepad {
 
     //basic.forever(function(){
     control.inBackground(function(){
+        let STICK_HOME = 128;
+        let stickx_prev = STICK_HOME;
+        let sticky_prev = STICK_HOME;
+        let stickx_dir = Stick_Direction.NEUTRAL;
+        let stick_dir = Stick_Direction.NEUTRAL;
         while(true)
         {
+            // if stick x changed from stickx_prev 
+            let stickx = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
+
+            if(stickx != stickx_prev){
+                if (stickx < STICK_HOME - STICK_DEADZONE_HALF)
+                {
+                    stickx_dir = Stick_Direction.LEFT;
+                } else if(stickx > STICK_HOME+STICK_DEADZONE_HALF)
+                {
+                    stickx_dir = Stick_Direction.RIGHT;
+                }
+                    // left stick changed
+            }
+            // or sticky changed from stickx_prev
+            // current x is left or neutral or right
+            // current y is up or neutral or down 
+            // stick pos then is up, up right or others
+
             // Check if stick has moved
             control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
             direction = Stick_Direction.UP;
