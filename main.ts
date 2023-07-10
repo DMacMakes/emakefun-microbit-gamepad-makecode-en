@@ -66,21 +66,26 @@ enum Stick_Direction{
 //% color="#FFA500" weight=10 icon="\uF11B" block="EMF Gamepad"
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
-    const STICK_HOME = 128;
-    const STICK_DEADZONE_HALF = 30;
+    const STICK_HOME = 128; // Centre position of analogue stick as reported by
+    const STICK_DEADZONE_HALF = 30; // Distance from center of analogue stick that is considered neutral
+    const LEDS_MIDDLE = 2;  // position of middle LED on Micro:bits' 5x5 LED matrix
     let poll_count = 0;
-    let Stick_poll_interval = 10; //10ms aka 100 polls per second
+    let controls_poll_interval = 10; //10ms aka 100 polls per second
     let stick_x_last = STICK_HOME;
     let stick_y_last = STICK_HOME;
     let stick_dir_x = Stick_Direction.NEUTRAL;
     let stick_dir_y = Stick_Direction.NEUTRAL;
     let stick_dir_x_last = Stick_Direction.NEUTRAL;
     let stick_dir_y_last = Stick_Direction.NEUTRAL;
-    export let left_stick_direction:Stick_Direction = Stick_Direction.NEUTRAL;
+    let left_stick_dir:Stick_Direction = Stick_Direction.NEUTRAL;
 
     let i2cAddr: number
     let BK: number
     let RS: number
+
+    /**
+     * Set register to value?
+     */
     function setreg(d: number) {
         pins.i2cWriteNumber(i2cAddr, d, NumberFormat.Int8LE)
         basic.pause(1)
@@ -92,45 +97,6 @@ namespace EMF_Gamepad {
         setreg(d)
         setreg(d + 4)
         setreg(d)
-    }
-
-    function lcdcmd(d: number) {
-        RS = 0
-        set(d)
-        set(d << 4)
-    }
-
-    function lcddat(d: number) {
-        RS = 1
-        set(d)
-        set(d << 4)
-    }
-
-    function i2cwrite(addr: number, reg: number, value: number) {
-        let buf = pins.createBuffer(2)
-        buf[0] = reg
-        buf[1] = value
-        pins.i2cWriteBuffer(addr, buf)
-    }
-
-    function i2cwrite1(addr: number, reg: number, value: number ,value1: string) {
-        let lengths = value1.length
-        let buf = pins.createBuffer(2+lengths)
-        //let arr = value1.split('')
-        buf[0] = reg 
-        buf[1] = value
-        let bytes_value = []
-        bytes_value = stringToBytes(value1)
-        for (let i = 0; i < bytes_value.length; i++) {
-            buf[2+i] = bytes_value[i]
-        }
-        pins.i2cWriteBuffer(addr, buf)
-    }
-    
-    function i2ccmd(addr: number, value: number) {
-        let buf = pins.createBuffer(1)
-        buf[0] = value
-        pins.i2cWriteBuffer(addr, buf)
     }
     
     function i2cread(addr: number, reg: number) {
@@ -198,7 +164,10 @@ namespace EMF_Gamepad {
        return false;
     }
     
-
+   /**
+    * Start the tactile feedback motor virating at the given intensity
+    * @param intensity the intensity of the vibration between 0 and 255. eg: 128
+    */
    //% blockId=Vibrate block="vibrate at intensity %intensity" 
    //% intensity.min=0 intensity.max=255
    //% weight=75
@@ -214,6 +183,10 @@ namespace EMF_Gamepad {
 			))
     }
 
+    /**
+     * Stop the tactile feedback motor vibrating. Helper/sugar function
+     * that just calls Vibrate with an intensity of 0.
+     */
    //% blockId=Stop_vibrating block="stop vibrating" 
    //% weight=76
    //% inlineInputMode=inline
@@ -221,7 +194,11 @@ namespace EMF_Gamepad {
     let a = AnalogPin.P1;
     pins.analogWritePin( a , 0)
 }
-
+    /**
+     *  Read the position of the chosen analog stick in the chosen axis.
+     * @param stick the Stick_Id (enum) to read the position of
+     * @param axis the axis (horizontal/x or vertical/y) to read
+     */
    //% blockId=Stick_position block="Position of %stick stick in %axis axis"
    //% weight=77
    //% inlineInputMode=inline
@@ -243,14 +220,25 @@ namespace EMF_Gamepad {
        return val;
    }
 
-    //% blockId=Left_stick_direction block="get left stick direction"
+    /**
+     * Get the direction of a given analog stick in 9 position joystick format.
+     */
+    //% blockId=Left_stick_direction block="current direction of %stick stick"
     //% weight=80
     //% inlineInputMode=inline
-    export function Get_left_stick_direction(): Stick_Direction
+    export function Stick_direction(stick:Stick_Id): Stick_Direction
     {
-        return (left_stick_direction);
+      // Currently only returns left stick dir
+        return (left_stick_dir);
     }
 
+    /**
+     * Define a block that allows the user to listen for a stick's change
+     * of direction and run some code.
+     * @param stick the stick to listen to (left or right)
+     * @param event the direction change event to listen for (up, down, left, right, neutral, defined in Stick_Direction)
+     * @param handler code to run when the event is raised.
+     */
     //% blockId=stick_onEvent block="on |%stick stick |%event"
     //% button.fieldEditor="gridpicker" stick.fieldOptions.columns=2
     //% event.fieldEditor="gridpicker" event.fieldOptions.columns=1
@@ -293,6 +281,13 @@ namespace EMF_Gamepad {
         return(stick_dir);
     }
 
+    /**
+     * Define a block that allows the user to specify a button and change of button state they want
+     * to react to, then listen for that event to occur, e.g., button A is pressed, button B is released, etc.
+     * @param button the button to be monitored
+     * @param event the change in state of the button to be monitored
+     * @param handler body code to run when the event is raised
+     */
     //% draggableParameters="reporter"
     //% blockId=emfButton_onEvent block="on gamepad button |%button input |%event"
     //% inlineInputMode=inline
@@ -300,44 +295,7 @@ namespace EMF_Gamepad {
     export function onEMFButtonEvent(button: EMF_Button, event:Button_State, handler: Action) {
         control.onEvent(<number>button, <number>event, handler); // register handler
     }
-
-    function check_stick_dir_x(): Stick_Direction
-    {
-        stick_dir_x = Stick_Direction.NEUTRAL;
-        let stick_dir = Stick_Direction.NEUTRAL;
-        let stick_x = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
-
-        // if real stick x value changed from stick x last value 
-        if (stick_x != stick_x_last) {
-            // Figure out if current x is left or neutral or right
-            // with neutral being in the dead zone 
-            if (stick_x < STICK_HOME - STICK_DEADZONE_HALF) {
-                stick_dir_x = Stick_Direction.LEFT;
-            } else if (stick_x > STICK_HOME + STICK_DEADZONE_HALF) {
-                stick_dir_x = Stick_Direction.RIGHT;
-            }
-        }
-        return(stick_dir_x);
-    }
-
-    function check_stick_dir_y(): Stick_Direction{
-        stick_dir_y = Stick_Direction.NEUTRAL;
-        //let stick_dir = Stick_Direction.NEUTRAL;
-        let stick_y = Stick_position(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y);
-
-        // if real stick x value changed from stick x last value 
-        if (stick_y != stick_y_last) {
-            // Figure out if current x is left or neutral or right
-            // with neutral being in the dead zone 
-            if (stick_y < STICK_HOME - STICK_DEADZONE_HALF) {
-                stick_dir_y = Stick_Direction.DOWN;
-            } else if (stick_y > STICK_HOME + STICK_DEADZONE_HALF) {
-                stick_dir_y = Stick_Direction.UP;
-            }
-        }
-        return (stick_dir_y);
-    }
-
+    
     /**
      * Combine x and y axis directions into a single 9 position joystick direction. Get axis
      * directions with check_stick_dir_in_axis() function.
@@ -379,6 +337,9 @@ namespace EMF_Gamepad {
         return(stick_dir);
     }
 
+    /**
+     * Blank the LED display, prior to writing a new pattern.
+     */
     //% blockId=Clear_leds block="clear LED display"
     //% weight=85
     //% inlineInputMode=inline
@@ -395,35 +356,30 @@ namespace EMF_Gamepad {
         }
     }
 
+    /**
+     * Illuminate a single LED on the Micro:bit display corresponding to the direction
+     * provided (usually from an analog stick).
+     * @param direction the direction to illuminate the LED (UP, DOWN, LEFT, RIGHT, etc 
+     * defined in Stick_Direction enum)
+     */
     //% blockId=Show_stick_dir_on_leds block="show stick direction %direction on LEDs"
     //% weight=86
     //% inlineInputMode=inline
     export function showDirectionOnLeds(direction :Stick_Direction):void {
-        // clear leds
-        /* basic.showLeds(`
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        . . . . .
-        `); */
         clearLeds();
-        let x = 2;
-        let y = 2;
+        let x = LEDS_MIDDLE;
+        let y = LEDS_MIDDLE;
         // top row
-        if (direction > 6) y = 0;
-        // bottom row
-        if (direction < 4 ) y = 4;
-        // Left column
-        if (direction == 7 || direction == 4 || direction == 1) x = 0;
-        // Right column
-        if (direction == 3 || direction == 6 || direction == 9) x = 4;
-        led.plotBrightness(x, y, 255);
+        if (direction >= Stick_Direction.UP_LEFT) y = 0;                // top row
+        if (direction <= Stick_Direction.DOWN_RIGHT ) y = 4;           // bottom row
+        if (direction == 7 || direction == 4 || direction == 1) x = 0; // Left column
+        if (direction == 3 || direction == 6 || direction == 9) x = 4; // Right column
+        led.plotBrightness(x, y, 255);                                 // Set the led to full brightness
     }
 
     // Sample the left stick periodically, throw an event if it changes.
     control.inBackground(function(): void{
-        showDirectionOnLeds(left_stick_direction);
+        showDirectionOnLeds(left_stick_dir);
         // last_button_states is an array of 6 Button_States, one for the last state of each button,
         // each initialised to Button_State.NONE_PRESS
         let last_button_states:Button_State[] = [Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS];
@@ -451,30 +407,26 @@ namespace EMF_Gamepad {
             stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
             stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
             
-            // Note any changed direction and remember the new position from
-            // the next check.
-            if(stick_dir_x != stick_dir_x_last)
+            // Note any changed direction and remember the new position from the next check.
+            if(stick_dir_x != stick_dir_x_last || stick_dir_y != stick_dir_y_last)
             {
                 dir_changed = true;
-                stick_dir_x_last = stick_dir_x;
             }
-            if (stick_dir_y != stick_dir_y_last) {
-                dir_changed = true;
-                stick_dir_y_last = stick_dir_y;            
-            }
-
+              
             // If either axis changed, combine them into a 9 position joystick direction
             // raise an event. Also show the new direction on the LEDs.
             if(dir_changed)
             {
-                left_stick_direction = combine_stick_dirs(stick_dir_x, stick_dir_y);
-                showDirectionOnLeds(left_stick_direction);
-                control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+              left_stick_dir = combine_stick_dirs(stick_dir_x, stick_dir_y);
+              showDirectionOnLeds(left_stick_dir);
+              control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+              stick_dir_x_last = stick_dir_x;
+              stick_dir_y_last = stick_dir_y;
             }
-            poll_count += 1;
+            //poll_count += 1;
             // Sleep this thread between checks of the stick and buttons, to avoid
             // overloading the CPU.
-            pause(Stick_poll_interval);
+            pause(controls_poll_interval);
         }
     })
    
