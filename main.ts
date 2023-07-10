@@ -32,9 +32,9 @@ enum Button_State {
 enum EMFButton_Event
 {
   //% block="down"
-  BUTTON_DOWN = 50,
+  BUTTON_DOWN = 46,
   //% block="up"
-  BUTTON_UP = 51
+  BUTTON_UP = 47
 }
 
 /**
@@ -301,7 +301,7 @@ namespace EMF_Gamepad {
     //% blockId=emfButton_onEvent block="on button |%button is |%event"
     //% inlineInputMode=inline
     //% weight=82
-    export function onEMFButtonEvent(button: EMF_Button, event:Button_State, handler: Action) {
+    export function onEMFButtonEvent(button: EMF_Button, event:EMFButton_Event, handler: Action) {
         control.onEvent(<number>button, <number>event, handler); // register handler
     }
     
