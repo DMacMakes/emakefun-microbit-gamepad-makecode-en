@@ -385,6 +385,22 @@ namespace EMF_Gamepad {
         led.plotBrightness(x, y, 255);                                 // Set the led to full brightness
     }
 
+    function checkForButtonEvent(button_id:EMF_Button, last_states:Button_State[]):void
+    {
+        let button_state = ReadButtonState(button_id);
+        if(button_state != last_states[button_id] && button_state != Button_State.NONE_PRESS)
+        {
+            if(button_state == Button_State.DOWN)
+            {
+                control.raiseEvent(<number>button_id, <number>EMFButton_Event.BUTTON_DOWN);
+            } else if (button_state == Button_State.UP)
+            {
+                control.raiseEvent(<number>button_id, <number>EMFButton_Event.BUTTON_UP);
+            }
+        }
+        last_states[button_id] = button_state;
+    }
+
     // Sample the left stick periodically, throw an event if it changes.
     control.inBackground(function(): void{
         showDirectionOnLeds(left_stick_dir);
@@ -395,9 +411,14 @@ namespace EMF_Gamepad {
         {
           // TODO: Make this left button check a function that checks all buttons for
           // up or down changes and triggers events.
-          // for button_id of [EMF_Button.L_BUTTON, EMF_Button.R_BUTTON, EMF_Button.A_BUTTON, EMF_Button.B_BUTTON]  
-          // checkForButtonEvent(button_id, last_button_states);
-            let L_state = ReadButtonState(EMF_Button.L_BUTTON);
+          //let button_id = EMF_Button.L_BUTTON;
+          
+          for ( let button_id of [EMF_Button.L_BUTTON, EMF_Button.R_BUTTON, EMF_Button.JOYSTICK_BUTTON_LEFT, EMF_Button.JOYSTICK_BUTTON_RIGHT] )
+          {
+            checkForButtonEvent(button_id, last_button_states);
+          }
+          
+           /* let L_state = ReadButtonState(EMF_Button.L_BUTTON);
             if(L_state != last_button_states[EMF_Button.L_BUTTON] && L_state != Button_State.NONE_PRESS)
             {
                 serial.writeLine("(extension) L button state:" + L_state);
@@ -411,7 +432,7 @@ namespace EMF_Gamepad {
                     control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_UP);
                 }
                 last_button_states[EMF_Button.L_BUTTON] = L_state;
-            }
+            } */
             let dir_changed = false;
             //stick_dir_x = check_stick_dir_x();
             stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
