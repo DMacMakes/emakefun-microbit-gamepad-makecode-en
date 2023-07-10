@@ -259,7 +259,7 @@ namespace EMF_Gamepad {
      * Check a stick's digital direction in a given axis and return a value confirming to 
      * 9 direction joystic notation
      **/
-    function check_stick_dir_in_axis(stick: Stick_Id, axis: Stick_Axis, last_pos=STICK_HOME): Stick_Direction
+    function check_stick_dir_in_axis(stick: Stick_Id, axis: Stick_Axis, last_pos:Number): Stick_Direction
     {
         let stick_dir = Stick_Direction.NEUTRAL;
         let stick_pos = Stick_position(stick, axis);
@@ -427,26 +427,23 @@ namespace EMF_Gamepad {
             //}
             let dir_changed = false;
             //stick_dir_x = check_stick_dir_x();
-            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
-            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y);
+            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
+            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
             //stick_dir_y = check_stick_dir_y();
-            // New direction for stick (in x)
+            
+            // Note any changed direction and remember the new position from
+            // the next check.
             if(stick_dir_x != stick_dir_x_last)
             {
-                //serial.writeLine("New stick_dir_x: " + stick_dir_x)
-                //left_stick_direction = stick_dir_x;
                 dir_changed = true;
                 stick_dir_x_last = stick_dir_x;
             }
             if (stick_dir_y != stick_dir_y_last) {
-                // Aaayye it's time to let the world know
-                //serial.writeLine("New stick_dir_x: " + stick_dir_x)
                 dir_changed = true;
-                stick_dir_y_last = stick_dir_y;
-                //left_stick_direction = stick_dir_y;
-            //    control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+                stick_dir_y_last = stick_dir_y;            
             }
-            //left_stick_direction = "combine stick dirs"
+
+            // If either axis changed,
             if(dir_changed)
             {
                 left_stick_direction = combine_stick_dirs(stick_dir_x, stick_dir_y);
