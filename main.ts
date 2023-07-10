@@ -443,7 +443,8 @@ namespace EMF_Gamepad {
                 stick_dir_y_last = stick_dir_y;            
             }
 
-            // If either axis changed,
+            // If either axis changed, combine them into a 9 position joystick direction
+            // raise an event. Also show the new direction on the LEDs.
             if(dir_changed)
             {
                 left_stick_direction = combine_stick_dirs(stick_dir_x, stick_dir_y);
@@ -451,8 +452,8 @@ namespace EMF_Gamepad {
                 control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
             }
             poll_count += 1;
-            // Check for buttons changing state, throw event if yes.
-            // call a function for this one. Might get gnarly.
+            // Sleep this thread between checks of the stick and buttons, to avoid
+            // overloading the CPU.
             pause(Stick_poll_interval);
         }
     })
