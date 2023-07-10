@@ -7,13 +7,17 @@ enum EMF_Button {
     JOYSTICK_BUTTON_LEFT = 4,
     //% block="JOYSTICK BUTTON RIGHT" 
     JOYSTICK_BUTTON_RIGHT = 3,
+    //% block="A",
+    A_BUTTON = 5,
+    //% block="B"
+    B_BUTTON = 6
 }
 
 enum Button_State {
     //% block="DOWN"
-    JOYSTICK_PRESS_DOWN = 0,   //按下
+    DOWN = 0,   //按下
     //% block="UP"
-    JOYSTICK_PRESS_UP = 1,    //释放
+    UP = 1,    //释放
     //% block="CLICK"
     SINGLE_CLICK = 3,     //单击
     //% block="DOUBLE_CLICK"
@@ -334,6 +338,13 @@ namespace EMF_Gamepad {
         return (stick_dir_y);
     }
 
+    /**
+     * Combine x and y axis directions into a single 9 position joystick direction. Get axis
+     * directions with check_stick_dir_in_axis() function.
+     * parameters:
+     * stick_dir_x: x axis direction
+     * stick_dir_y: y axis direction 
+     */
     function combine_stick_dirs(stick_dir_x: Stick_Direction, stick_dir_y:Stick_Direction): Stick_Direction
     {
         let stick_dir = Stick_Direction.NEUTRAL;
@@ -413,23 +424,27 @@ namespace EMF_Gamepad {
     // Sample the left stick periodically, throw an event if it changes.
     control.inBackground(function(): void{
         showDirectionOnLeds(left_stick_direction);
-        let last_L_status=Button_State.NONE_PRESS;
+        // last_button_states is an array of 6 Button_States, one for the last state of each button,
+        // each initialised to Button_State.NONE_PRESS
+        let last_button_states:Button_State[] = [Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS];
+
+        =Button_State.NONE_PRESS;
         while(true)
         {
             //if(poll_count % 50 == 0) // every 50 polls, or 500 ms
             //{
                 let L_status = Get_Button_Status(EMF_Button.L_BUTTON);
-                if(L_status != last_L_status && L_status != Button_State.NONE_PRESS)
+                if(L_status != last_button_states[EMF_Button.L_BUTTON] && L_status != Button_State.NONE_PRESS)
                 {
                     serial.writeLine("L button state:" + L_status);
-                    last_L_status = L_status;
+                    last_button_states[EMF_Button.L_BUTTON] = L_status;
                 }
             //}
             let dir_changed = false;
-            //stick_dir_x = check_stick_dir_x();
-            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
-            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
-            //stick_dir_y = check_stick_dir_y();
+            stick_dir_x = check_stick_dir_x();
+            //stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
+            //stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
+            stick_dir_y = check_stick_dir_y();
             
             // Note any changed direction and remember the new position from
             // the next check.

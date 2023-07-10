@@ -1,8 +1,12 @@
 {
     "name": "EMF_Gamepad",
     "version": "1.0.1",
-    "description": "EMakefun Microbit Handler (Gamepad)",
+    "description": "EMakefun Microbit Gamepad",
     "license": "MIT",
+    "authors": [
+        "EMakefun <www.emakefun.com>",
+        "Danny McGillick"
+    ],
     "dependencies": {
         "core": "*",
         "microphone": "*"
