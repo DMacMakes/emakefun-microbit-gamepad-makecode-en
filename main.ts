@@ -232,7 +232,7 @@ namespace EMF_Gamepad {
     /**
      * Get the direction of a given analog stick in 9 position joystick format.
      */
-    //% blockId=Left_stick_direction block="current direction of %stick stick"
+    //% blockId=stick_direction block="current direction of %stick stick"
     //% weight=80
     //% inlineInputMode=inline
     export function Stick_direction(stick:Stick_Id): Stick_Direction
