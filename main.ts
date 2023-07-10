@@ -393,6 +393,10 @@ namespace EMF_Gamepad {
 
         while(true)
         {
+          // TODO: Make this left button check a function that checks all buttons for
+          // up or down changes and triggers events.
+          // for button_id of [EMF_Button.L_BUTTON, EMF_Button.R_BUTTON, EMF_Button.A_BUTTON, EMF_Button.B_BUTTON]  
+          // checkForButtonEvent(button_id, last_button_states);
             let L_state = ReadButtonState(EMF_Button.L_BUTTON);
             if(L_state != last_button_states[EMF_Button.L_BUTTON] && L_state != Button_State.NONE_PRESS)
             {
