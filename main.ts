@@ -77,7 +77,7 @@ namespace EMF_Gamepad {
     const STICK_DEADZONE_HALF = 30; // Distance from center of analogue stick that is considered neutral
     const LEDS_MIDDLE = 2;  // position of middle LED on Micro:bits' 5x5 LED matrix
     let poll_count = 0;
-    let controls_poll_interval = 10; //10ms aka 100 polls per second
+    let controls_poll_interval = 20; //10ms aka 100 polls per second
     let stick_x_last = STICK_HOME;
     let stick_y_last = STICK_HOME;
     let stick_dir_x = Stick_Direction.NEUTRAL;
