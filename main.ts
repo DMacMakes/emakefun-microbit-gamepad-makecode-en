@@ -6,11 +6,12 @@ enum EMF_Button {
     //% block="JOYSTICK BUTTON LEFT"
     JOYSTICK_BUTTON_LEFT = 4,
     //% block="JOYSTICK BUTTON RIGHT" 
-    JOYSTICK_BUTTON_RIGHT = 3,
-    //% block="A",
-    A_BUTTON = 5,
-    //% block="B"
-    B_BUTTON = 6
+    JOYSTICK_BUTTON_RIGHT = 3
+    //,
+    /// % block="A",
+    // A_BUTTON = 5,
+    /// % block="B"
+    // B_BUTTON = 6
 }
 
 enum Button_State {
@@ -64,7 +65,7 @@ enum Stick_Id{
 // 7 8 9  (up left, up, up right)
 // 4 5 6  (left, neutral, right)
 // 1 2 3
-enum Stick_Direction{
+enum Stick_Direction {
     UP_LEFT=7, UP=8, UP_RIGHT=9,
     LEFT=4, NEUTRAL=5, RIGHT=6,
     DOWN_LEFT=1, DOWN=2, DOWN_RIGHT=3     
@@ -147,7 +148,7 @@ namespace EMF_Gamepad {
     let JOYSTICK_BUTTON_RIGHT = 0x21;
     let JOYSTICK_BUTTON_LEFT = 0x20;
     let NONE_PRESS = 8;
-    function Get_Button_Status (button : number){
+    function ReadButtonState (button : number){
         switch(button) {
             case 1: 
                 return i2cread(JOYSTICK_I2C_ADDR,R_BUTTON_REG);
@@ -162,11 +163,11 @@ namespace EMF_Gamepad {
         }
     }
 
-   //% blockId=Button_status block="button %button status is %status"
+   //% blockId=Button_status block="button %button state is %status"
    //% weight=74
    //% inlineInputMode=inline
-   export function Button_status(button: EMF_Button , status: Button_State): boolean{
-       if(Get_Button_Status(button) == status){
+   export function ButtonStateIs(button: EMF_Button , status: Button_State): boolean{
+       if(ReadButtonState(button) == status){
            return true;
        }
        return false;
@@ -297,7 +298,7 @@ namespace EMF_Gamepad {
      * @param handler body code to run when the event is raised
      */
     //% draggableParameters="reporter"
-    //% blockId=emfButton_onEvent block="on gamepad button |%button input |%event"
+    //% blockId=emfButton_onEvent block="on button |%button is |%event"
     //% inlineInputMode=inline
     //% weight=82
     export function onEMFButtonEvent(button: EMF_Button, event:Button_State, handler: Action) {
@@ -353,8 +354,6 @@ namespace EMF_Gamepad {
     //% inlineInputMode=inline
     export function clearLeds():void
     {
-        //let i = 0;
-        //let j = 0;
         for(let i=0; i<=4; i++)
         {
             for(let j=0; j<=4; j++)
@@ -393,18 +392,17 @@ namespace EMF_Gamepad {
 
         while(true)
         {
-            let L_state = Get_Button_Status(EMF_Button.L_BUTTON);
+            let L_state = ReadButtonState(EMF_Button.L_BUTTON);
             if(L_state != last_button_states[EMF_Button.L_BUTTON] && L_state != Button_State.NONE_PRESS)
             {
-                serial.writeLine("L button state:" + L_state);
+                serial.writeLine("(extension) L button state:" + L_state);
                 if(L_state == Button_State.DOWN)
                 {
-                    // I might need a higher event number to avoid a clash?
-                    // I used 45 or something for the stick event.-
-                    
+                    serial.writeLine("(extension) raising left button down event")
                     control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_DOWN);
                 } else if (L_state == Button_State.UP)
                 {
+                    serial.writeLine("(extension) raising left button up event")
                     control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_UP);
                 }
                 last_button_states[EMF_Button.L_BUTTON] = L_state;
