@@ -248,7 +248,7 @@ namespace EMF_Gamepad {
    //% blockId=Stick_position block="Position of %stick stick in %axis axis"
    //% weight=77
    //% inlineInputMode=inline
-   export function Stick_position(stick: Stick_Id , axis: Stick_Axis): Number{
+   export function Stick_position(stick: Stick_Id , axis: Stick_Axis): number{
        let val = 0;
        if(stick == 0){
            if(axis == 0){
@@ -288,7 +288,41 @@ namespace EMF_Gamepad {
     export function onEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
         control.onEvent(<number>stick, <number>event, handler); // register handler
     }
-    
+
+    /**
+     * Check a stick's digital direction in a given axis and return a value confirming to 
+     * 9 direction joystic notation
+     **/
+    function check_stick_dir_in_axis(stick: Stick_Id, axis: Stick_Axis, last_pos=STICK_HOME): Stick_Direction
+    {
+        let stick_dir = Stick_Direction.NEUTRAL;
+        let stick_pos = Stick_position(stick, axis);
+
+        // if real stick x value changed from stick x last value 
+        if (stick_pos != last_pos) {
+            // Figure out if current x is left or neutral or right
+            // with neutral being in the dead zone 
+            if (stick_pos < STICK_HOME - STICK_DEADZONE_HALF) {
+                if(axis == Stick_Axis.STICK_X)
+                {
+                  stick_dir = Stick_Direction.LEFT;
+                } else if (axis == Stick_Axis.STICK_Y)
+                {
+                  stick_dir = Stick_Direction.DOWN;
+                }
+            } else if (stick_pos > STICK_HOME + STICK_DEADZONE_HALF) {
+                if(axis == Stick_Axis.STICK_X)
+                {
+                  stick_dir = Stick_Direction.RIGHT;
+                } else if (axis == Stick_Axis.STICK_Y)
+                {
+                  stick_dir = Stick_Direction.UP;
+                }
+            }
+        }
+        return(stick_dir);
+    }
+
     function check_stick_dir_x(): Stick_Direction
     {
         stick_dir_x = Stick_Direction.NEUTRAL;
@@ -402,8 +436,10 @@ namespace EMF_Gamepad {
         while(true)
         {
             let dir_changed = false;
-            stick_dir_x = check_stick_dir_x();
-            stick_dir_y = check_stick_dir_y();
+            //stick_dir_x = check_stick_dir_x();
+            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
+            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y);
+            //stick_dir_y = check_stick_dir_y();
             // New direction for stick (in x)
             if(stick_dir_x != stick_dir_x_last)
             {
