@@ -241,20 +241,7 @@ namespace EMF_Gamepad {
         return (left_stick_dir);
     }
 
-    /**
-     * Define a block that allows the user to listen for a stick's change
-     * of direction and run some code.
-     * @param stick the stick to listen to (left or right)
-     * @param event the direction change event to listen for (up, down, left, right, neutral, defined in Stick_Direction)
-     * @param handler code to run when the event is raised.
-     */
-    //% blockId=stick_onEvent block="on |%stick stick |%event"
-    //% button.fieldEditor="gridpicker" stick.fieldOptions.columns=2
-    //% event.fieldEditor="gridpicker" event.fieldOptions.columns=1
-    //% weight=81
-    export function onStickEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
-        control.onEvent(<number>stick, <number>event, handler); // register handler
-    }
+ 
 
     /**
      * Check a stick's digital direction in a given axis and return a value confirming to 
@@ -297,14 +284,31 @@ namespace EMF_Gamepad {
      * @param event the change in state of the button to be monitored
      * @param handler body code to run when the event is raised
      */
-    //% draggableParameters="reporter"
+ 
     //% blockId=emfButton_onEvent block="on button |%button is |%event"
     //% inlineInputMode=inline
+    //% button.fieldEditor="gridpicker" button.fieldOptions.columns=4
+    //% event.fieldEditor="gridpicker" event.fieldOptions.columns=2
     //% weight=82
     export function onEMFButtonEvent(button: EMF_Button, event:EMFButton_Event, handler: Action) {
         control.onEvent(<number>button, <number>event, handler); // register handler
     }
-    
+   
+    /**
+     * Define a block that allows the user to listen for a stick's change
+     * of direction and run some code.
+     * @param stick the stick to listen to (left or right)
+     * @param event the direction change event to listen for (up, down, left, right, neutral, defined in Stick_Direction)
+     * @param handler code to run when the event is raised.
+     */
+    //% blockId=stick_onEvent block="on |%stick stick |%event"
+    //% button.fieldEditor="gridpicker" stick.fieldOptions.columns=2
+    //% event.fieldEditor="gridpicker" event.fieldOptions.columns=1
+    //% weight=81
+    export function onStickEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
+      control.onEvent(<number>stick, <number>event, handler); // register handler
+    }
+
     /**
      * Combine x and y axis directions into a single 9 position joystick direction. Get axis
      * directions with check_stick_dir_in_axis() function.
