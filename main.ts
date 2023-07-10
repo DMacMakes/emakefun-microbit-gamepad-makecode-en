@@ -19,14 +19,15 @@ enum Button_State {
     DOWN = 0,   //按下
     //% block="UP"
     UP = 1,    //释放
-    //% block="CLICK"
+    NONE_PRESS = 8      //未按
+    // The following are too laggy to be useful
+    /* // % block="CLICK"
     SINGLE_CLICK = 3,     //单击
-    //% block="DOUBLE_CLICK"
+    // % block="DOUBLE_CLICK"
     DOUBLE_CLICK = 4,    //双击
-    //% block="HOLD"
+    // % block="HOLD"
     LONG_PRESS_HOLD = 6,    //长按
-    //% block="PRESS"
-    NONE_PRESS = 8,      //未按
+    //% block="PRESS" */
 }
 
 enum EMFButton_Event
@@ -37,9 +38,6 @@ enum EMFButton_Event
   BUTTON_UP = 47
 }
 
-/**
- * Trigger Events Proposed by DFRobot gamer:bit Players.
- */
 //%
 enum Stick_Event {
     //% block="changed direction"
@@ -286,7 +284,6 @@ namespace EMF_Gamepad {
      */
  
     //% blockId=emfButton_onEvent block="on button |%button is |%event"
-    //% inlineInputMode=inline
     //% button.fieldEditor="gridpicker" button.fieldOptions.columns=4
     //% event.fieldEditor="gridpicker" event.fieldOptions.columns=2
     //% weight=82
