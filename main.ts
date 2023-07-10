@@ -428,7 +428,6 @@ namespace EMF_Gamepad {
         // each initialised to Button_State.NONE_PRESS
         let last_button_states:Button_State[] = [Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS];
 
-        =Button_State.NONE_PRESS;
         while(true)
         {
             //if(poll_count % 50 == 0) // every 50 polls, or 500 ms
@@ -437,14 +436,20 @@ namespace EMF_Gamepad {
                 if(L_status != last_button_states[EMF_Button.L_BUTTON] && L_status != Button_State.NONE_PRESS)
                 {
                     serial.writeLine("L button state:" + L_status);
+                    if(L_status == Button_State.DOWN || L_status == Button_State.UP)
+                    {
+                        // I might need a higher event number to avoid a clash?
+                        // I used 45 or something for the stick event.-
+                        
+                        control.raiseEvent(EMF_Button.L_BUTTON, L_status);
+                    }
                     last_button_states[EMF_Button.L_BUTTON] = L_status;
                 }
             //}
             let dir_changed = false;
-            stick_dir_x = check_stick_dir_x();
-            //stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
-            //stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
-            stick_dir_y = check_stick_dir_y();
+            //stick_dir_x = check_stick_dir_x();
+            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
+            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
             
             // Note any changed direction and remember the new position from
             // the next check.

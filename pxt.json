@@ -3,10 +3,6 @@
     "version": "1.0.1",
     "description": "EMakefun Microbit Gamepad",
     "license": "MIT",
-    "authors": [
-        "EMakefun <www.emakefun.com>",
-        "Danny McGillick"
-    ],
     "dependencies": {
         "core": "*",
         "microphone": "*"
@@ -24,5 +20,9 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "tsprj"
+    "preferredEditor": "tsprj",
+    "authors": [
+        "EMakefun <www.emakefun.com>",
+        "Danny McGillick"
+    ]
 }
