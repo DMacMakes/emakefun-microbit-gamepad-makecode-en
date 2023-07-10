@@ -63,8 +63,9 @@ enum Stick_Direction{
 // try gamepad icon \u1F3AE
 namespace EMF_Gamepad {
     const STICK_HOME = 128;
-    let STICK_DEADZONE_HALF = 30;
-
+    const STICK_DEADZONE_HALF = 30;
+    let poll_count = 0;
+    let Stick_poll_interval = 10; //10ms aka 100 polls per second
     let stick_x_last = STICK_HOME;
     let stick_y_last = STICK_HOME;
     let stick_dir_x = Stick_Direction.NEUTRAL;
@@ -72,7 +73,6 @@ namespace EMF_Gamepad {
     let stick_dir_x_last = Stick_Direction.NEUTRAL;
     let stick_dir_y_last = Stick_Direction.NEUTRAL;
     export let left_stick_direction:Stick_Direction = Stick_Direction.NEUTRAL;
-    let Stick_poll_interval = 10; //10ms aka 100 polls per second
 
     let i2cAddr: number
     let BK: number
@@ -135,9 +135,8 @@ namespace EMF_Gamepad {
         return val;
     }
 
-    function stringToBytes (str : string) {  
 
-        
+    function stringToBytes (str : string) {      
         let ch = 0;
         let st = 0;
         let gm:number[]; 
@@ -185,9 +184,6 @@ namespace EMF_Gamepad {
         }
     }
 
-   /**
-    * Dual Stick Controller
-    */
    //% blockId=Button_status block="button %button status is %status"
    //% weight=74
    //% inlineInputMode=inline
@@ -197,25 +193,8 @@ namespace EMF_Gamepad {
        }
        return false;
     }
+    
 
-    /*
-    // draggableParameters="reporter"
-    // blockId=OnGamedpadButtonPressed block="on gamepad button $button pressed"
-    // weight=80
-    // inlineInputMode=inline
-    export function onGamepadButtonPress(button:EMF_Button, handler: () => void): void {
-
-      // button was pressed
-      if(handler) 
-      {
-        handler()
-      }
-    }
-    */
-
-    /**
-    * Dual Stick Controller
-    */
    //% blockId=Vibrate block="vibrate at intensity %intensity" 
    //% intensity.min=0 intensity.max=255
    //% weight=75
@@ -231,9 +210,6 @@ namespace EMF_Gamepad {
 			))
     }
 
-    /**
-    * Dual Stick Controller
-    */
    //% blockId=Stop_vibrating block="stop vibrating" 
    //% weight=76
    //% inlineInputMode=inline
@@ -242,9 +218,6 @@ namespace EMF_Gamepad {
     pins.analogWritePin( a , 0)
 }
 
-    /**
-    * Dual Stick Controller
-    */
    //% blockId=Stick_position block="Position of %stick stick in %axis axis"
    //% weight=77
    //% inlineInputMode=inline
@@ -266,26 +239,19 @@ namespace EMF_Gamepad {
        return val;
    }
 
-    //% blockId=Left_stick_direction block="left stick direction"
+    //% blockId=Left_stick_direction block="get left stick direction"
     //% weight=80
     //% inlineInputMode=inline
-    export function Get_left_stick_direction()
+    export function Get_left_stick_direction(): Stick_Direction
     {
         return (left_stick_direction);
     }
 
-   // TODO: Add a stick_direction function that returns a Stick_Direction
-
-
-    /**
-     * Registers code to run when a DFRobot gamer:bit event is detected.
-     */
-    //% weight=80
-    //% blockGap=50
     //% blockId=stick_onEvent block="on |%stick stick |%event"
     //% button.fieldEditor="gridpicker" stick.fieldOptions.columns=2
     //% event.fieldEditor="gridpicker" event.fieldOptions.columns=1
-    export function onEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
+    //% weight=81
+    export function onStickEvent(stick: Stick_Id, event: Stick_Event, handler: Action) {
         control.onEvent(<number>stick, <number>event, handler); // register handler
     }
 
@@ -321,6 +287,14 @@ namespace EMF_Gamepad {
             }
         }
         return(stick_dir);
+    }
+
+    //% draggableParameters="reporter"
+    //% blockId=emfButton_onEvent block="on gamepad button |%button input |%event"
+    //% inlineInputMode=inline
+    //% weight=82
+    export function onEMFButtonEvent(button: EMF_Button, event:Button_State, handler: Action) {
+        control.onEvent(<number>button, <number>event, handler); // register handler
     }
 
     function check_stick_dir_x(): Stick_Direction
@@ -394,7 +368,10 @@ namespace EMF_Gamepad {
         return(stick_dir);
     }
 
-    function clearLeds():void
+    //% blockId=Clear_leds block="clear LED display"
+    //% weight=85
+    //% inlineInputMode=inline
+    export function clearLeds():void
     {
         //let i = 0;
         //let j = 0;
@@ -407,7 +384,10 @@ namespace EMF_Gamepad {
         }
     }
 
-    function showDirectionOnLeds(direction :Stick_Direction):void {
+    //% blockId=Show_stick_dir_on_leds block="show stick direction %direction on LEDs"
+    //% weight=86
+    //% inlineInputMode=inline
+    export function showDirectionOnLeds(direction :Stick_Direction):void {
         // clear leds
         /* basic.showLeds(`
         . . . . .
@@ -430,11 +410,21 @@ namespace EMF_Gamepad {
         led.plotBrightness(x, y, 255);
     }
 
-    //basic.forever(function(){
+    // Sample the left stick periodically, throw an event if it changes.
     control.inBackground(function(): void{
         showDirectionOnLeds(left_stick_direction);
+        let last_L_status=Button_State.NONE_PRESS;
         while(true)
         {
+            //if(poll_count % 50 == 0) // every 50 polls, or 500 ms
+            //{
+                let L_status = Get_Button_Status(EMF_Button.L_BUTTON);
+                if(L_status != last_L_status && L_status != Button_State.NONE_PRESS)
+                {
+                    serial.writeLine("L button state:" + L_status);
+                    last_L_status = L_status;
+                }
+            //}
             let dir_changed = false;
             //stick_dir_x = check_stick_dir_x();
             stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X);
@@ -463,6 +453,9 @@ namespace EMF_Gamepad {
                 showDirectionOnLeds(left_stick_direction);
                 control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
             }
+            poll_count += 1;
+            // Check for buttons changing state, throw event if yes.
+            // call a function for this one. Might get gnarly.
             pause(Stick_poll_interval);
         }
     })
