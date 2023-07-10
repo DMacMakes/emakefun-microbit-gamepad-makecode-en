@@ -28,6 +28,14 @@ enum Button_State {
     NONE_PRESS = 8,      //未按
 }
 
+enum EMFButton_Event
+{
+  //% block="down"
+  BUTTON_DOWN = 50,
+  //% block="up"
+  BUTTON_UP = 51
+}
+
 /**
  * Trigger Events Proposed by DFRobot gamer:bit Players.
  */
@@ -381,27 +389,26 @@ namespace EMF_Gamepad {
     control.inBackground(function(): void{
         showDirectionOnLeds(left_stick_dir);
         // last_button_states is an array of 6 Button_States, one for the last state of each button,
-        // each initialised to Button_State.NONE_PRESS
         let last_button_states:Button_State[] = [Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS, Button_State.NONE_PRESS];
 
         while(true)
         {
-            //if(poll_count % 50 == 0) // every 50 polls, or 500 ms
-            //{
-                let L_status = Get_Button_Status(EMF_Button.L_BUTTON);
-                if(L_status != last_button_states[EMF_Button.L_BUTTON] && L_status != Button_State.NONE_PRESS)
+            let L_state = Get_Button_Status(EMF_Button.L_BUTTON);
+            if(L_state != last_button_states[EMF_Button.L_BUTTON] && L_state != Button_State.NONE_PRESS)
+            {
+                serial.writeLine("L button state:" + L_state);
+                if(L_state == Button_State.DOWN)
                 {
-                    serial.writeLine("L button state:" + L_status);
-                    if(L_status == Button_State.DOWN || L_status == Button_State.UP)
-                    {
-                        // I might need a higher event number to avoid a clash?
-                        // I used 45 or something for the stick event.-
-                        
-                        control.raiseEvent(EMF_Button.L_BUTTON, L_status);
-                    }
-                    last_button_states[EMF_Button.L_BUTTON] = L_status;
+                    // I might need a higher event number to avoid a clash?
+                    // I used 45 or something for the stick event.-
+                    
+                    control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_DOWN);
+                } else if (L_state == Button_State.UP)
+                {
+                    control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_UP);
                 }
-            //}
+                last_button_states[EMF_Button.L_BUTTON] = L_state;
+            }
             let dir_changed = false;
             //stick_dir_x = check_stick_dir_x();
             stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
