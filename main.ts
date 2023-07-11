@@ -139,13 +139,15 @@ namespace EMF_Gamepad {
     let JOYSTICK_LEFT_Y_REG = 0x11;
     let JOYSTICK_RIGHT_X_REG = 0x12;
     let JOYSTICK_RIGHT_Y_REG = 0x13;
-  
-
     let L_BUTTON_REG = 0x22;
     let R_BUTTON_REG = 0x23;
     let JOYSTICK_BUTTON_RIGHT = 0x21;
     let JOYSTICK_BUTTON_LEFT = 0x20;
     let NONE_PRESS = 8;
+
+    /**
+     *  Check state of a button via the i2c bus.
+     */
     function ReadButtonState (button : number){
         switch(button) {
             case 1: 
@@ -385,6 +387,9 @@ namespace EMF_Gamepad {
         led.plotBrightness(x, y, 255);                                 // Set the led to full brightness
     }
 
+    /**
+     * Check if buttons have been pressed or released; if so, raise an event.
+     */
     function checkForButtonEvent(button_id:EMF_Button, last_states:Button_State[]):void
     {
         let button_state = ReadButtonState(button_id);
@@ -418,46 +423,31 @@ namespace EMF_Gamepad {
             checkForButtonEvent(button_id, last_button_states);
           }
           
-           /* let L_state = ReadButtonState(EMF_Button.L_BUTTON);
-            if(L_state != last_button_states[EMF_Button.L_BUTTON] && L_state != Button_State.NONE_PRESS)
-            {
-                serial.writeLine("(extension) L button state:" + L_state);
-                if(L_state == Button_State.DOWN)
-                {
-                    serial.writeLine("(extension) raising left button down event")
-                    control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_DOWN);
-                } else if (L_state == Button_State.UP)
-                {
-                    serial.writeLine("(extension) raising left button up event")
-                    control.raiseEvent(EMF_Button.L_BUTTON, EMFButton_Event.BUTTON_UP);
-                }
-                last_button_states[EMF_Button.L_BUTTON] = L_state;
-            } */
-            let dir_changed = false;
-            //stick_dir_x = check_stick_dir_x();
-            stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
-            stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
+          let dir_changed = false;
+          //stick_dir_x = check_stick_dir_x();
+          stick_dir_x = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_X, stick_x_last);
+          stick_dir_y = check_stick_dir_in_axis(Stick_Id.STICK_LEFT, Stick_Axis.STICK_Y, stick_y_last);
+          
+          // Note any changed direction and remember the new position from the next check.
+          if(stick_dir_x != stick_dir_x_last || stick_dir_y != stick_dir_y_last)
+          {
+              dir_changed = true;
+          }
             
-            // Note any changed direction and remember the new position from the next check.
-            if(stick_dir_x != stick_dir_x_last || stick_dir_y != stick_dir_y_last)
-            {
-                dir_changed = true;
-            }
-              
-            // If either axis changed, combine them into a 9 position joystick direction
-            // raise an event. Also show the new direction on the LEDs.
-            if(dir_changed)
-            {
-              left_stick_dir = combine_stick_dirs(stick_dir_x, stick_dir_y);
-              showDirectionOnLeds(left_stick_dir);
-              control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
-              stick_dir_x_last = stick_dir_x;
-              stick_dir_y_last = stick_dir_y;
-            }
-            //poll_count += 1;
-            // Sleep this thread between checks of the stick and buttons, to avoid
-            // overloading the CPU.
-            pause(controls_poll_interval);
+          // If either axis changed, combine them into a 9 position joystick direction
+          // raise an event. Also show the new direction on the LEDs.
+          if(dir_changed)
+          {
+            left_stick_dir = combine_stick_dirs(stick_dir_x, stick_dir_y);
+            showDirectionOnLeds(left_stick_dir);
+            control.raiseEvent(Stick_Id.STICK_LEFT, Stick_Event.CHANGED_DIR)
+            stick_dir_x_last = stick_dir_x;
+            stick_dir_y_last = stick_dir_y;
+          }
+          //poll_count += 1;
+          // Sleep this thread between checks of the stick and buttons, to avoid
+          // overloading the CPU.
+          pause(controls_poll_interval);
         }
     })
    
