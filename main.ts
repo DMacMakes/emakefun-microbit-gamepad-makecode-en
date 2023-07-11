@@ -414,9 +414,9 @@ namespace EMF_Gamepad {
 
         while(true)
         {
-          // TODO: Make this left button check a function that checks all buttons for
-          // up or down changes and triggers events.
-          //let button_id = EMF_Button.L_BUTTON;
+          // Check all buttons for up or down changes and triggers events. Since Object.values
+          // isn't available in the micro:bit target, the buttons are provided manually in an array.
+          //! Note: Take care to update this array if the EMF_Button enum changes.
           
           for ( let button_id of [EMF_Button.L_BUTTON, EMF_Button.R_BUTTON, EMF_Button.JOYSTICK_BUTTON_LEFT, EMF_Button.JOYSTICK_BUTTON_RIGHT] )
           {
